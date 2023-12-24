@@ -21,31 +21,53 @@ pipeline{
                 git branch: 'main', url: 'https://github.com/rameshkumarvermagithub/complete-prodcution-e2e-pipeline.git'
             }
         }
-        stage("Sonarqube Analysis "){
-            steps{
-                withSonarQubeEnv('sonar-server') {
-                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=complete-prodcution-e2e-pipeline \
-                    -Dsonar.projectKey=complete-prodcution-e2e-pipeline '''
-                }
-            }
-        }
-        stage("quality gate"){
-           steps {
-                script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar' 
-                }
-            } 
-        }
-        // stage('Install Dependencies') {
-        //     steps {
-        //         sh "npm install"
-        //     }
-        // }
         stage('Maven Build'){
             steps{
                 sh 'mvn clean package'
             }
         }
+        stage("Test Application"){
+            steps {
+                sh "mvn test"
+            }
+        }
+        stage("Sonarqube Analysis") {
+            steps {
+                script {
+                    withSonarQubeEnv(credentialsId: 'sonar') {
+                        sh "mvn sonar:sonar"
+                    }
+                }
+            }
+        }
+        stage("Quality Gate") {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar'
+                }
+            }
+        }
+        // stage("Sonarqube Analysis "){
+        //     steps{
+        //         withSonarQubeEnv('sonar-server') {
+        //             sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=complete-prodcution-e2e-pipeline \
+        //             -Dsonar.projectKey=complete-prodcution-e2e-pipeline '''
+        //         }
+        //     }
+        // }
+        // stage("quality gate"){
+        //   steps {
+        //         script {
+        //             waitForQualityGate abortPipeline: false, credentialsId: 'sonar' 
+        //         }
+        //     } 
+        // }
+        // stage('Install Dependencies') {
+        //     steps {
+        //         sh "npm install"
+        //     }
+        // }
+        
         stage('OWASP FS SCAN') {
             steps {
                 dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
@@ -83,7 +105,7 @@ pipeline{
                       sh 'kubectl apply -f myapp-deployment.yml'
                       sh 'kubectl apply -f myapp-service.yml'
                       }   
-                    }
+                    // }
                 }
             }
         }
