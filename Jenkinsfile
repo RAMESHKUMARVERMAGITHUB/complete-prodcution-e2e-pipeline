@@ -77,7 +77,7 @@ pipeline{
         stage('Deploy to Kubernets'){
             steps{
                 script{
-                    dir('Manifests') {
+                    // dir('Manifests') {
                       withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
                       sh 'kubectl delete --all pods'
                       sh 'kubectl apply -f myapp-deployment.yml'
@@ -88,23 +88,4 @@ pipeline{
             }
         }
     }
-    //     stage('Checkout Code') {
-    //         steps {
-    //             git branch: 'main', url: 'https://github.com/Aj7Ay/Tetris-manifest.git'
-    //         }
-    //     }
-    //     stage('Update Deployment File') {
-    //         steps {
-    //             script {
-    //                 withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-    //                    NEW_IMAGE_NAME = "sevenajay/tetrisv1:latest"   #update your image here
-    //                    sh "sed -i 's|image: .*|image: $NEW_IMAGE_NAME|' deployment.yml"
-    //                    sh 'git add deployment.yml'
-    //                    sh "git commit -m 'Update deployment image to $NEW_IMAGE_NAME'"
-    //                    sh "git push @github.com/${GIT_USER_NAME}/${GIT_REPO_NAME">https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main"
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
 }
